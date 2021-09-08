@@ -1,28 +1,26 @@
-import styled from '@emotion/styled'
-import React from 'react';
+import { GetServerSideProps } from 'next'
+import React from 'react'
+import { dehydrate, QueryClient } from 'react-query'
+import Layout from '../components/common/Layout'
+import Thumbnails from '../components/Thumbnails'
+import { getPokemonAPI } from '../lib/api/pokemon'
 
 export default function Home() {
   return (
-    <HomeContainer>
-      <h1>👋 Chanho`s Boilerplate</h1>
-      <Chanho src="/images/chanho.jpeg" alt="chanho image" />
-    </HomeContainer>
-  );
+    <Layout>
+      <Thumbnails />
+    </Layout>
+  )
 }
 
-const HomeContainer = styled.div`
-  margin-top: 15px;
-  text-align: center;
-
-  h1 {
-    color: #f1c40f;
-    font-size: 25px;
+export const getServerSideProps: GetServerSideProps = async () => {
+  const queryClient = new QueryClient()
+  await queryClient.prefetchQuery('getPokemonAPI', () => getPokemonAPI({ limit: 0, offset: 0 }), {
+    staleTime: 1000 * 10,
+  })
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
   }
-`;
-
-const Chanho = styled.img`
-  display: inline-block;
-  margin-top: 10px;
-  width: 100px;
-  border-radius: 5px;
-`;
+}

@@ -1,14 +1,25 @@
 import type { AppProps } from 'next/app'
-import { RecoilRoot } from 'recoil'
+import React from 'react'
+import { Hydrate, QueryClient, QueryClientProvider } from 'react-query'
 import { GlobalStyles } from '../utils/GlobalStyles'
+
+const queryClient = new QueryClient()
+queryClient.setDefaultOptions({
+  queries: {
+    staleTime: Infinity,
+  },
+})
 
 function App({ Component, pageProps }: AppProps) {
   return (
     <>
       {GlobalStyles}
-      <RecoilRoot>
-        <Component {...pageProps} />
-      </RecoilRoot>
+      <QueryClientProvider client={queryClient}>
+        <Hydrate state={pageProps.dehydratedState}>
+          <Component {...pageProps} />
+          <ReactQueryDevtools iinitialIsOpen={false} />
+        </Hydrate>
+      </QueryClientProvider>
     </>
   )
 }
