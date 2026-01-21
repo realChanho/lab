@@ -1,5 +1,13 @@
 const http = require("http");
-const options = new URL("http://localhost:3000");
+
+const url = process.argv[2];
+
+if(!url) {
+  console.error("Usage: node my-client <url>");
+  process.exit(1);
+}
+
+const options = new URL(url);
 
 const handler = (response) => {
   const data = []
