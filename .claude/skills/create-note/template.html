@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{문서 제목}} — 요약 노트</title>
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --text: #ededee;
+    --muted: #8a8a92;
+    --faint: #5a5a62;
+    --rule: #232328;
+    --accent: #d6a35c;
+    --danger: #e08a7d;
+    --green: #7fb98a;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    font-size: 17px;
+    line-height: 1.85;
+    letter-spacing: -0.01em;
+  }
+  main { max-width: 660px; margin: 0 auto; padding: 96px 28px 120px; }
+
+  .kicker {
+    font-size: .72rem; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 22px;
+  }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600; font-size: 2.5rem; line-height: 1.25;
+    letter-spacing: -0.02em; margin: 0 0 28px;
+  }
+  .source {
+    font-size: .9rem; color: var(--muted); line-height: 1.7;
+    padding-bottom: 44px; border-bottom: 1px solid var(--rule); margin-bottom: 60px;
+  }
+  .source a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--faint); }
+  .source a:hover { border-color: var(--text); }
+  .source .sep { color: var(--faint); margin: 0 8px; }
+
+  .lead {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.35rem; line-height: 1.65; margin: 0 0 76px;
+  }
+  .lead em { font-style: normal; color: var(--accent); }
+  .lead .after {
+    display: block; font-family: "Pretendard", -apple-system, sans-serif;
+    font-size: .98rem; line-height: 1.8; color: var(--muted); margin-top: 20px;
+  }
+
+  section { margin-bottom: 72px; }
+  .num {
+    font-family: Georgia, serif; font-size: .85rem; color: var(--accent);
+    letter-spacing: .1em; display: block; margin-bottom: 10px;
+  }
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600; font-size: 1.6rem; letter-spacing: -0.015em; margin: 0 0 14px;
+  }
+  .sub { color: var(--muted); font-size: .96rem; margin: 0 0 32px; }
+
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; }
+  ol.steps > li {
+    counter-increment: s; position: relative;
+    padding: 22px 0 22px 52px; border-top: 1px solid var(--rule);
+  }
+  ol.steps > li:last-child { border-bottom: 1px solid var(--rule); }
+  ol.steps > li::before {
+    content: counter(s, decimal-leading-zero);
+    position: absolute; left: 0; top: 22px;
+    font-family: Georgia, serif; font-size: .85rem; color: var(--faint);
+  }
+  ol.steps .st { font-weight: 600; font-size: 1.05rem; }
+  ol.steps .tag {
+    display: inline-block; font-size: .72rem; letter-spacing: .04em;
+    margin-left: 10px; padding: 1px 9px; border-radius: 999px;
+    border: 1px solid var(--rule); vertical-align: middle;
+  }
+  .tag.auto { color: var(--green); border-color: #2f4636; }
+  .tag.ondemand { color: var(--accent); border-color: #463a2a; }
+  ol.steps .sd { color: var(--muted); font-size: .96rem; margin-top: 4px; }
+  ol.steps ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: .92rem; }
+  ol.steps ul li { margin: 2px 0; }
+  ol.steps .hint { color: var(--faint); font-size: .9rem; margin: 8px 0 0; }
+  .note {
+    color: var(--muted); font-size: .96rem; margin: 28px 0 0;
+    padding-left: 18px; border-left: 2px solid var(--accent);
+  }
+  .note b { color: var(--text); font-weight: 600; }
+
+  .defs { margin: 0; }
+  .def {
+    padding: 20px 0; border-top: 1px solid var(--rule);
+    display: grid; grid-template-columns: 168px 1fr; gap: 24px;
+  }
+  .def:last-child { border-bottom: 1px solid var(--rule); }
+  .def dt { font-weight: 600; color: var(--text); }
+  .def dd { margin: 0; color: var(--muted); font-size: .96rem; }
+  @media (max-width: 540px) { .def { grid-template-columns: 1fr; gap: 6px; } }
+
+  .ills { margin: 0; }
+  .ill { padding: 18px 0; border-top: 1px solid var(--rule); }
+  .ill:last-child { border-bottom: 1px solid var(--rule); }
+  .ill b { color: var(--danger); font-weight: 600; }
+  .ill span { color: var(--muted); font-size: .96rem; }
+
+  pre {
+    background: #08080a; border: 1px solid var(--rule); border-radius: 8px;
+    padding: 22px 24px; overflow-x: auto;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .82rem; line-height: 1.75; color: var(--muted);
+  }
+  pre code { color: var(--muted); }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .85em; color: var(--accent);
+  }
+  kbd {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .8em; background: #1c1c20;
+    border: 1px solid var(--rule); border-radius: 4px; padding: 2px 7px;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: .94rem; }
+  th, td { text-align: left; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+  th {
+    color: var(--faint); font-weight: 500; font-size: .76rem;
+    letter-spacing: .12em; text-transform: uppercase;
+  }
+  td { color: var(--muted); }
+  td:first-child { color: var(--text); }
+  td code { white-space: nowrap; }
+
+  .warn { margin-top: 24px; font-size: .94rem; color: var(--muted); }
+  .warn b { color: var(--danger); font-weight: 600; }
+
+  .takeaway { margin: 96px 0 0; padding: 44px 0 0; border-top: 1px solid var(--rule); }
+  .takeaway p {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.5rem; line-height: 1.6; margin: 0;
+  }
+  .takeaway b { color: var(--accent); font-weight: 600; }
+  .takeaway .after {
+    display: block; font-family: "Pretendard", sans-serif;
+    font-size: .98rem; line-height: 1.8; color: var(--muted); margin-top: 18px;
+  }
+
+  footer {
+    margin-top: 80px; padding-top: 28px; border-top: 1px solid var(--rule);
+    color: var(--faint); font-size: .82rem;
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <p class="kicker">{{상위 카테고리 · 문서 종류}}</p>
+  <h1>{{문서 제목}}</h1>
+  <p class="source">
+    출처 <a href="{{URL}}" target="_blank">{{출처 제목}}</a>
+    <span class="sep">·</span> {{채널/저자}} <span class="sep">·</span> {{길이}}<br>
+    {{요약 방식 한 줄}} <span class="sep">·</span> 작성일 {{YYYY-MM-DD}}
+  </p>
+
+  <p class="lead">
+    {{핵심 한 줄. 강조는}} <em>{{이렇게 골드로}}</em>.
+    <span class="after">{{한 단락 부연 설명.}}</span>
+  </p>
+
+  <!-- 단계/순서/원칙 섹션 -->
+  <section>
+    <span class="num">{{섹션 라벨}}</span>
+    <h2>{{섹션 제목}}</h2>
+    <p class="sub">{{한 줄 설명.}}</p>
+    <ol class="steps">
+      <li>
+        <div class="st">{{항목 제목}}</div>
+        <div class="sd">{{한 줄 요약.}}</div>
+        <ul><li>{{세부 1}}</li><li>{{세부 2}}</li></ul>
+      </li>
+    </ol>
+    <p class="note">{{보조 메모. <b>강조</b>는 흰색.}}</p>
+  </section>
+
+  <!-- 정의/비교/매핑 섹션 -->
+  <section>
+    <span class="num">{{섹션 라벨}}</span>
+    <h2>{{섹션 제목}}</h2>
+    <p class="sub">{{한 줄 설명.}}</p>
+    <dl class="defs">
+      <div class="def"><dt>{{용어}}</dt><dd>{{설명.}}</dd></div>
+    </dl>
+  </section>
+
+  <div class="takeaway">
+    <p>{{결론 한 문장. <b>핵심구</b>는 골드.}}</p>
+    <span class="after">{{한 줄 부연.}}</span>
+  </div>
+
+  <footer>이 노트는 {{대상}} 내용을 요약·재구성한 것입니다. 표현·강조는 정리 과정에서 다듬어졌습니다.</footer>
+
+</main>
+</body>
+</html>
