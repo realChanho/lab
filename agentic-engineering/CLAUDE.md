@@ -6,8 +6,10 @@
 
 ## 구조
 
-- `karpathy-claude-code/` — 카파시 CLAUDE.md 4원칙. `CLAUDE.md`는 실제 적용용 규칙 파일, `summary.html`은 출처 영상 요약 노트다.
+- `index.html` — 전체 노트 목차 랜딩 페이지. 각 섹션 `index.html`로 이동한다. 새 노트를 추가하면 여기에도 한 줄 등록한다.
+- `karpathy-claude-code/` — 카파시 CLAUDE.md 4원칙. `CLAUDE.md`는 실제 적용용 규칙 파일, `index.html`은 출처 영상 요약 노트다.
 - `project-doc-structure/` — 새 프로젝트 시작 시 잡을 문서 구조 기준. `index.html`에 CLAUDE.md와 스펙·컨벤션 분리 원칙을 정리했다.
+- `how-claude-code-works/` — Claude Code 작동 원리(에이전틱 루프·컨텍스트 윈도우·도구·권한 모드) 요약. `index.html`은 Anthropic 공식 영상 요약 노트다.
 
 ## 작성 규칙
 

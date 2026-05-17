@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Claude Code Works — 요약 노트</title>
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --text: #ededee;
+    --muted: #8a8a92;
+    --faint: #5a5a62;
+    --rule: #232328;
+    --accent: #d6a35c;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    font-size: 17px;
+    line-height: 1.85;
+    letter-spacing: -0.01em;
+  }
+  main {
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 96px 28px 120px;
+  }
+
+  /* Header */
+  .kicker {
+    font-size: .72rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 22px;
+  }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    font-size: 2.5rem;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin: 0 0 28px;
+  }
+  .source {
+    font-size: .9rem;
+    color: var(--muted);
+    line-height: 1.7;
+    padding-bottom: 44px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 60px;
+  }
+  .source a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--faint); }
+  .source a:hover { border-color: var(--text); }
+  .source .sep { color: var(--faint); margin: 0 8px; }
+
+  /* Lead */
+  .lead {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.35rem;
+    line-height: 1.65;
+    color: var(--text);
+    margin: 0 0 76px;
+  }
+  .lead em { font-style: normal; color: var(--accent); }
+  .lead .after {
+    display: block;
+    font-family: "Pretendard", -apple-system, sans-serif;
+    font-size: .98rem;
+    line-height: 1.8;
+    color: var(--muted);
+    margin-top: 20px;
+  }
+
+  /* Sections */
+  section { margin-bottom: 72px; }
+  .num {
+    font-family: Georgia, serif;
+    font-size: .85rem;
+    color: var(--accent);
+    letter-spacing: .1em;
+    display: block;
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    font-size: 1.6rem;
+    letter-spacing: -0.015em;
+    margin: 0 0 14px;
+  }
+  .sub {
+    color: var(--muted);
+    font-size: .96rem;
+    margin: 0 0 32px;
+  }
+
+  /* Step list */
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; }
+  ol.steps > li {
+    counter-increment: s;
+    position: relative;
+    padding: 22px 0 22px 52px;
+    border-top: 1px solid var(--rule);
+  }
+  ol.steps > li:last-child { border-bottom: 1px solid var(--rule); }
+  ol.steps > li::before {
+    content: counter(s, decimal-leading-zero);
+    position: absolute; left: 0; top: 22px;
+    font-family: Georgia, serif;
+    font-size: .85rem;
+    color: var(--faint);
+  }
+  ol.steps .st { font-weight: 600; font-size: 1.05rem; }
+  ol.steps .sd { color: var(--muted); font-size: .96rem; margin-top: 4px; }
+  ol.steps ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: .92rem; }
+  ol.steps ul li { margin: 2px 0; }
+  .note {
+    color: var(--muted);
+    font-size: .96rem;
+    margin: 28px 0 0;
+    padding-left: 18px;
+    border-left: 2px solid var(--accent);
+  }
+  .note b { color: var(--text); font-weight: 600; }
+
+  /* Definition rows */
+  .defs { margin: 0; }
+  .def {
+    padding: 20px 0;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 168px 1fr;
+    gap: 24px;
+  }
+  .def:last-child { border-bottom: 1px solid var(--rule); }
+  .def dt { font-weight: 600; color: var(--text); }
+  .def dd { margin: 0; color: var(--muted); font-size: .96rem; }
+  @media (max-width: 540px) {
+    .def { grid-template-columns: 1fr; gap: 6px; }
+  }
+
+  kbd {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .8em;
+    background: #1c1c20;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 2px 7px;
+  }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .85em;
+    color: var(--accent);
+  }
+
+  .warn {
+    margin-top: 24px;
+    font-size: .94rem;
+    color: var(--muted);
+  }
+  .warn b { color: #e08a7d; font-weight: 600; }
+
+  /* Takeaway */
+  .takeaway {
+    margin: 96px 0 0;
+    padding: 44px 0 0;
+    border-top: 1px solid var(--rule);
+  }
+  .takeaway p {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.5rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .takeaway b { color: var(--accent); font-weight: 600; }
+
+  footer {
+    margin-top: 80px;
+    padding-top: 28px;
+    border-top: 1px solid var(--rule);
+    color: var(--faint);
+    font-size: .82rem;
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <p class="kicker">Agentic Engineering · 요약 노트</p>
+  <h1>How Claude&nbsp;Code Works</h1>
+  <p class="source">
+    출처 <a href="https://youtu.be/6bs5b4FltCU" target="_blank">How Claude Code Works</a>
+    <span class="sep">·</span> Claude (Anthropic 공식)
+    <span class="sep">·</span> 2:50 <span class="sep">·</span> 업로드 2026-05-14<br>
+    영상 내용 한국어 요약 정리 <span class="sep">·</span> 작성일 2026-05-17
+  </p>
+
+  <p class="lead">
+    Claude Code는 대화형 챗봇이 아니라, <em>스스로 도구를 호출하고 결과를 검증하며 반복하는 자율 에이전트</em>다.
+    <span class="after">일반 챗 어시스턴트가 "텍스트 입력 → 텍스트 출력"이 전부인 것과 근본적으로 다르다. 이 차이를 만드는 네 가지 축을 정리한다.</span>
+  </p>
+
+  <section>
+    <span class="num">01</span>
+    <h2>에이전틱 루프</h2>
+    <p class="sub">핵심 작동 방식. 다음 사이클을 목표가 검증될 때까지 반복한다.</p>
+    <ol class="steps">
+      <li>
+        <div class="st">프롬프트 입력</div>
+        <div class="sd">사용자가 작업을 요청한다.</div>
+      </li>
+      <li>
+        <div class="st">컨텍스트 수집</div>
+        <div class="sd">작업에 필요한 정보를 모델과 상호작용하며 모은다. 모델은 텍스트 또는 <code>tool call</code>을 반환한다.</div>
+      </li>
+      <li>
+        <div class="st">행동</div>
+        <div class="sd">파일 수정, 명령어 실행 등 실제 작업을 수행한다.</div>
+      </li>
+      <li>
+        <div class="st">검증</div>
+        <div class="sd">결과가 원래 목표를 달성했는지 확인한다.</div>
+        <ul>
+          <li>달성했으면 — 종료하고 다음 프롬프트를 기다린다.</li>
+          <li>못 했으면 — 완성·검증될 때까지 루프를 다시 돈다.</li>
+        </ul>
+      </li>
+    </ol>
+    <p class="note">루프가 도는 동안 사용자는 언제든 <b>컨텍스트 추가, 중단, 방향 수정</b>으로 개입해 목표 쪽으로 유도할 수 있다.</p>
+  </section>
+
+  <section>
+    <span class="num">02</span>
+    <h2>관리되는 컨텍스트 윈도우</h2>
+    <p class="sub">대화가 길어져도 흐름을 유지하는 메모리 관리 방식.</p>
+    <dl class="defs">
+      <div class="def">
+        <dt>컨텍스트 윈도우</dt>
+        <dd>대화, 파일 내용, 명령 출력 등을 얼마나 저장하고 되돌아볼 수 있는지를 결정한다.</dd>
+      </div>
+      <div class="def">
+        <dt>자동 압축</dt>
+        <dd>한계에 도달하면 무엇을 빼고 무엇을 요약할지 스스로 판단해 사용량을 다시 낮춘다.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section>
+    <span class="num">03</span>
+    <h2>도구</h2>
+    <p class="sub">에이전트의 중추. "입력 → 출력" 사이에 행동을 끼워 넣는 장치.</p>
+    <dl class="defs">
+      <div class="def">
+        <dt>역할</dt>
+        <dd>에이전트가 작업에 가까워지기 위해 언제 코드를 실행할지 스스로 결정하게 한다. 예: <code>read file</code>, <code>search web</code>.</dd>
+      </div>
+      <div class="def">
+        <dt>호출 판단</dt>
+        <dd>Claude Code는 시맨틱 검색으로 어떤 도구를 호출하고 그 출력을 가져올지 판단한다.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section>
+    <span class="num">04</span>
+    <h2>설정 가능한 권한</h2>
+    <p class="sub"><kbd>Shift</kbd> + <kbd>Tab</kbd>으로 세 모드를 전환한다.</p>
+    <dl class="defs">
+      <div class="def">
+        <dt>기본</dt>
+        <dd>파일 수정·셸 명령 실행 전 명시적 허가를 요청한다.</dd>
+      </div>
+      <div class="def">
+        <dt>Auto-accept edits</dt>
+        <dd>파일 편집은 묻지 않고 적용, 단 명령 실행은 여전히 확인한다.</dd>
+      </div>
+      <div class="def">
+        <dt>Plan mode</dt>
+        <dd>읽기 전용 도구만 써서 작업 시작 전 실행 계획을 수립한다.</dd>
+      </div>
+    </dl>
+    <p class="warn"><b>주의.</b> 권한을 건너뛰면 Claude Code의 실수를 발생 전에 잡기 어려워진다. 명령 실행 전권을 줄 때는 신중해야 한다.</p>
+  </section>
+
+  <div class="takeaway">
+    <p>코드베이스를 읽고, 행동하고, <b>스스로 검증</b>한다. 그 점이 챗 윈도우와 근본적으로 다르다.</p>
+  </div>
+
+  <footer>
+    이 노트는 영상 내용을 한국어로 요약·재구성한 것입니다. 표현·강조는 정리 과정에서 다듬어졌습니다.
+  </footer>
+
+</main>
+</body>
+</html>
