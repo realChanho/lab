@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프로젝트 문서 구조 기준 — CLAUDE.md vs 스펙/컨벤션</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #181b22;
+    --line: #2a2f3a;
+    --text: #e6e8eb;
+    --muted: #9aa1ad;
+    --accent: #7c9eff;
+    --accent2: #ffb86b;
+    --green: #6bd49a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 40px 20px;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+    line-height: 1.7;
+  }
+  main { max-width: 800px; margin: 0 auto; }
+  header.doc { border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 32px; }
+  h1 { font-size: 1.7rem; margin: 0 0 8px; }
+  .meta { color: var(--muted); font-size: .9rem; }
+  .lead {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 18px 20px; margin: 24px 0; font-size: 1.05rem;
+  }
+  .lead strong { color: var(--accent2); }
+  h2 { font-size: 1.25rem; margin: 40px 0 16px; padding-left: 12px; border-left: 3px solid var(--accent); }
+  .layer {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 18px 20px; margin: 14px 0;
+    position: relative; padding-left: 60px;
+  }
+  .layer .num {
+    position: absolute; left: 18px; top: 18px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: #0f1115;
+    font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .layer h3 { margin: 0 0 4px; font-size: 1.05rem; }
+  .layer .tag {
+    display: inline-block; font-size: .75rem; padding: 2px 8px; border-radius: 4px;
+    margin-left: 8px; vertical-align: middle;
+  }
+  .tag.auto { background: #1d3a2a; color: var(--green); }
+  .tag.ondemand { background: #3a2f1d; color: var(--accent2); }
+  .layer ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+  pre {
+    background: #0b0d11; border: 1px solid var(--line); border-radius: 8px;
+    padding: 16px; overflow-x: auto; font-size: .88rem; line-height: 1.6;
+  }
+  code { background: #222633; padding: 2px 6px; border-radius: 4px; font-size: .88em; }
+  pre code { background: none; padding: 0; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  td code { white-space: nowrap; }
+  .takeaway {
+    margin-top: 40px; padding: 22px;
+    background: linear-gradient(135deg, #1d2230, #181b22);
+    border: 1px solid var(--line); border-radius: 12px;
+    text-align: center; font-size: 1.1rem;
+  }
+  .takeaway b { color: var(--accent2); }
+  .rule { color: var(--green); font-weight: 600; }
+  footer { margin-top: 40px; color: var(--muted); font-size: .82rem; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <header class="doc">
+    <h1>프로젝트 문서 구조 기준</h1>
+    <p class="meta">CLAUDE.md vs 스펙/컨벤션 — 새 프로젝트 시작 시 잡을 표준 구조 · 정리일 2026-05-17</p>
+  </header>
+
+  <p class="lead">
+    핵심 원칙: <strong>"항상 로드돼야 하는 것"과 "필요할 때만 참조하는 것"을 분리한다.</strong>
+    CLAUDE.md는 매 세션 토큰을 먹으므로 짧게, 상세 내용은 별책으로 뺀다.
+  </p>
+
+  <h2>4계층 구조</h2>
+
+  <div class="layer">
+    <div class="num">1</div>
+    <h3>CLAUDE.md (프로젝트 루트) <span class="tag auto">자동 로드</span></h3>
+    <p>매 세션 컨텍스트에 자동 포함. <b>짧고 늘 지켜야 할 것만</b> 넣는다.</p>
+    <ul>
+      <li>행동 규칙 (카파시 4원칙 + 추가 규칙)</li>
+      <li>빌드/테스트/실행 명령어 — <code>npm test</code>, <code>pytest</code> 등</li>
+      <li>핵심 컨벤션 요약 (몇 줄): "함수형 컴포넌트만", "에러는 Result 타입으로"</li>
+      <li>디렉터리 구조 한눈 요약</li>
+    </ul>
+    <p style="margin:8px 0 0;color:var(--muted)">길어지면 토큰 낭비 → 아래 계층으로 분리.</p>
+  </div>
+
+  <div class="layer">
+    <div class="num">2</div>
+    <h3>상세 스펙 / 컨벤션 <span class="tag ondemand">필요 시 참조</span></h3>
+    <p>자동 로드 안 됨. 두 방법으로 연결한다.</p>
+    <ul>
+      <li><b><code>@import</code></b> — CLAUDE.md 안에 <code>@docs/conventions.md</code> 한 줄 → 그 파일도 자동 로드. <em>항상 필요한 컨벤션</em>이면 이걸로.</li>
+      <li><b>언급만</b> — "상세는 <code>docs/conventions.md</code> 참고"라고만 적고 필요할 때 읽게. <em>가끔만 필요</em>하면 토큰 효율적.</li>
+    </ul>
+  </div>
+
+  <div class="layer">
+    <div class="num">3</div>
+    <h3>기능 스펙 <span class="tag ondemand">필요 시 참조</span></h3>
+    <p>기능 단위 명세. <code>docs/spec/auth.md</code> 처럼 분리하고 작업 시 해당 파일만 읽게 한다.</p>
+  </div>
+
+  <div class="layer">
+    <div class="num">4</div>
+    <h3>진행 중 작업 상태 <span class="tag ondemand">작업 중 갱신</span></h3>
+    <p>CLAUDE.md 7번 규칙(Plan + Checklist + Context Notes)이 규정하는 산출물.</p>
+    <ul>
+      <li><code>checklist.md</code> — 할 일 체크박스, 진행하며 체크</li>
+      <li><code>context-notes.md</code> — 작업 중 의사결정과 근거, 계속 append</li>
+    </ul>
+  </div>
+
+  <h2>권장 디렉터리 레이아웃</h2>
+<pre><code>project-root/
+├── CLAUDE.md            # 행동 규칙 + 핵심 명령어 (자동 로드, 짧게)
+├── checklist.md         # 진행 중 작업 체크박스
+├── context-notes.md     # 의사결정 로그
+└── docs/
+    ├── conventions.md    # 코딩 컨벤션 상세 (네이밍, 폴더링, 스타일)
+    ├── architecture.md   # 시스템 구조, 의사결정 기록
+    └── spec/
+        └── auth.md        # 기능별 스펙</code></pre>
+
+  <h2>어디에 무엇을 기록하나</h2>
+  <table>
+    <tr><th>종류</th><th>위치</th><th>로드 방식</th></tr>
+    <tr><td>행동 규칙 · 핵심 명령어</td><td><code>CLAUDE.md</code></td><td>자동</td></tr>
+    <tr><td>상세 컨벤션 / 아키텍처</td><td><code>docs/*.md</code></td><td><code>@import</code> 또는 참조</td></tr>
+    <tr><td>기능 스펙</td><td><code>docs/spec/*.md</code></td><td>필요 시 참조</td></tr>
+    <tr><td>작업 진행 상태</td><td><code>checklist.md</code>, <code>context-notes.md</code></td><td>작업 중 갱신</td></tr>
+  </table>
+
+  <div class="takeaway">
+    <b>CLAUDE.md는 인덱스/헌법, 스펙·컨벤션은 별책부록.</b><br>
+    <span class="rule">CLAUDE.md가 50줄을 넘기 시작하면</span> <code>docs/</code>로 빼고
+    <code>@import</code>나 한 줄 참조로 연결하는 것이 정석.
+  </div>
+
+  <footer>새 프로젝트 부트스트랩 시 이 구조를 기준으로 시작한다.</footer>
+</main>
+</body>
+</html>
