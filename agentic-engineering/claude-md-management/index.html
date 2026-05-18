@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLAUDE.md 자동 관리 플러그인 — 요약 노트</title>
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --text: #ededee;
+    --muted: #8a8a92;
+    --faint: #5a5a62;
+    --rule: #232328;
+    --accent: #d6a35c;
+    --danger: #e08a7d;
+    --green: #7fb98a;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    font-size: 17px;
+    line-height: 1.85;
+    letter-spacing: -0.01em;
+  }
+  main { max-width: 660px; margin: 0 auto; padding: 96px 28px 120px; }
+
+  .kicker {
+    font-size: .72rem; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 22px;
+  }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600; font-size: 2.5rem; line-height: 1.25;
+    letter-spacing: -0.02em; margin: 0 0 28px;
+  }
+  .source {
+    font-size: .9rem; color: var(--muted); line-height: 1.7;
+    padding-bottom: 44px; border-bottom: 1px solid var(--rule); margin-bottom: 60px;
+  }
+  .source a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--faint); }
+  .source a:hover { border-color: var(--text); }
+  .source .sep { color: var(--faint); margin: 0 8px; }
+
+  .lead {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.35rem; line-height: 1.65; margin: 0 0 76px;
+  }
+  .lead em { font-style: normal; color: var(--accent); }
+  .lead .after {
+    display: block; font-family: "Pretendard", -apple-system, sans-serif;
+    font-size: .98rem; line-height: 1.8; color: var(--muted); margin-top: 20px;
+  }
+
+  section { margin-bottom: 72px; }
+  .num {
+    font-family: Georgia, serif; font-size: .85rem; color: var(--accent);
+    letter-spacing: .1em; display: block; margin-bottom: 10px;
+  }
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600; font-size: 1.6rem; letter-spacing: -0.015em; margin: 0 0 14px;
+  }
+  .sub { color: var(--muted); font-size: .96rem; margin: 0 0 32px; }
+
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; }
+  ol.steps > li {
+    counter-increment: s; position: relative;
+    padding: 22px 0 22px 52px; border-top: 1px solid var(--rule);
+  }
+  ol.steps > li:last-child { border-bottom: 1px solid var(--rule); }
+  ol.steps > li::before {
+    content: counter(s, decimal-leading-zero);
+    position: absolute; left: 0; top: 22px;
+    font-family: Georgia, serif; font-size: .85rem; color: var(--faint);
+  }
+  ol.steps .st { font-weight: 600; font-size: 1.05rem; }
+  ol.steps .sd { color: var(--muted); font-size: .96rem; margin-top: 4px; }
+  ol.steps ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: .92rem; }
+  ol.steps ul li { margin: 2px 0; }
+  .note {
+    color: var(--muted); font-size: .96rem; margin: 28px 0 0;
+    padding-left: 18px; border-left: 2px solid var(--accent);
+  }
+  .note b { color: var(--text); font-weight: 600; }
+
+  .defs { margin: 0; }
+  .def {
+    padding: 20px 0; border-top: 1px solid var(--rule);
+    display: grid; grid-template-columns: 168px 1fr; gap: 24px;
+  }
+  .def:last-child { border-bottom: 1px solid var(--rule); }
+  .def dt { font-weight: 600; color: var(--text); }
+  .def dd { margin: 0; color: var(--muted); font-size: .96rem; }
+  @media (max-width: 540px) { .def { grid-template-columns: 1fr; gap: 6px; } }
+
+  pre {
+    background: #08080a; border: 1px solid var(--rule); border-radius: 8px;
+    padding: 22px 24px; overflow-x: auto;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .82rem; line-height: 1.75; color: var(--muted);
+  }
+  pre code { color: var(--muted); }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .85em; color: var(--accent);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: .94rem; }
+  th, td { text-align: left; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+  th {
+    color: var(--faint); font-weight: 500; font-size: .76rem;
+    letter-spacing: .12em; text-transform: uppercase;
+  }
+  td { color: var(--muted); }
+  td:first-child { color: var(--text); }
+  td.w { color: var(--accent); font-family: Georgia, serif; }
+  td code { white-space: nowrap; }
+
+  .warn { margin-top: 24px; font-size: .94rem; color: var(--muted); }
+  .warn b { color: var(--danger); font-weight: 600; }
+
+  .takeaway { margin: 96px 0 0; padding: 44px 0 0; border-top: 1px solid var(--rule); }
+  .takeaway p {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.5rem; line-height: 1.6; margin: 0;
+  }
+  .takeaway b { color: var(--accent); font-weight: 600; }
+  .takeaway .after {
+    display: block; font-family: "Pretendard", sans-serif;
+    font-size: .98rem; line-height: 1.8; color: var(--muted); margin-top: 18px;
+  }
+
+  footer {
+    margin-top: 80px; padding-top: 28px; border-top: 1px solid var(--rule);
+    color: var(--faint); font-size: .82rem;
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <p class="kicker">Agentic Engineering · 요약 노트</p>
+  <h1>CLAUDE.md 자동 관리 플러그인</h1>
+  <p class="source">
+    출처 <a href="https://www.youtube.com/shorts/EKTSrPTEgn0" target="_blank">CLAUDE.md 자동 관리하는 공식 플러그인</a>
+    <span class="sep">·</span> 짐코딩
+    <span class="sep">·</span> 1:28 <span class="sep">·</span> 업로드 2026-05-07<br>
+    영상 내용 한국어 요약 · 플러그인 공식 문서로 보강 <span class="sep">·</span> 작성일 2026-05-19
+  </p>
+
+  <p class="lead">
+    CLAUDE.md는 프로젝트가 진행될수록 <em>비대해지고 낡는다</em>.
+    공식 <code>claude-md-management</code> 플러그인은 세션에서 배운 것을 기록하고, 파일 자체를 정기 점검해 깨끗하게 유지한다.
+    <span class="after">CLAUDE.md는 매 프롬프트마다 자동으로 따라붙는 프로젝트 규칙 파일이다. 늘어나는 규칙을 누가 정리할 것인가 — 이 플러그인이 그 자리를 맡는다.</span>
+  </p>
+
+  <section>
+    <span class="num">01</span>
+    <h2>왜 필요한가</h2>
+    <p class="sub">CLAUDE.md가 비대해지는 구조적인 이유.</p>
+    <ol class="steps">
+      <li>
+        <div class="st">매번 따라붙는 파일</div>
+        <div class="sd">CLAUDE.md는 클로드 코드가 알아야 할 규칙을 적는 파일이고, 프롬프트를 요청할 때마다 자동으로 컨텍스트에 실린다.</div>
+      </li>
+      <li>
+        <div class="st">규칙은 계속 늘어난다</div>
+        <div class="sd">프로젝트가 진행될수록 지켜야 할 규칙·관습·함정이 쌓이고, 파일이 자연스럽게 부풀어 오른다.</div>
+      </li>
+      <li>
+        <div class="st">코드와 어긋난다</div>
+        <div class="sd">명령어가 바뀌고 의존성이 갈리면서 CLAUDE.md만 옛 상태로 남는다. 누군가 주기적으로 점검해야 한다.</div>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <span class="num">02</span>
+    <h2>두 가지 도구</h2>
+    <p class="sub">목적이 다르다. 하나는 기록, 하나는 검진.</p>
+    <dl class="defs">
+      <div class="def">
+        <dt><code>/revise-claude-md</code></dt>
+        <dd>커맨드. 세션이 끝날 때 한 번 호출한다. 이번 대화를 분석해 새로 알게 된 명령어·작업 패턴·함정을 추출하고, CLAUDE.md에 추가할 후보를 보여 준다. 회의 끝에 쓰는 회의록과 같다.</dd>
+      </div>
+      <div class="def">
+        <dt><code>claude-md-improver</code></dt>
+        <dd>스킬. 프로젝트의 모든 CLAUDE.md를 주기적으로 점검한다. 여섯 기준으로 평가·등급을 매기고, 작동하지 않는 명령어·빠진 의존성·누락된 환경 설정 같은 이슈를 짚어 준다.</dd>
+      </div>
+    </dl>
+    <p class="note"><b>트리거</b> — 전자는 세션이 끝났다는 시점에, 후자는 코드베이스가 바뀌었다는 시점에 작동한다.</p>
+  </section>
+
+  <section>
+    <span class="num">03</span>
+    <h2>언제 어떻게 부르나</h2>
+    <p class="sub">두 도구의 호출 방식.</p>
+    <ol class="steps">
+      <li>
+        <div class="st">작업을 끝낸 직후</div>
+        <div class="sd">세션을 닫기 전에 <code>/revise-claude-md</code>를 입력한다. 이번 대화에서 건진 것이 자동으로 정리돼 후보로 뜬다.</div>
+      </li>
+      <li>
+        <div class="st">정기 점검</div>
+        <div class="sd">"audit my CLAUDE.md files" 같은 한 줄로 <code>claude-md-improver</code>를 깨운다. 등급표와 수정 제안을 받은 뒤 승인하면 파일에 반영된다.</div>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <span class="num">04</span>
+    <h2>평가 여섯 기준</h2>
+    <p class="sub"><code>claude-md-improver</code>가 점수를 매기는 축. 합계 100점.</p>
+    <table>
+      <thead>
+        <tr><th>기준</th><th>배점</th><th>확인 질문</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Commands / Workflows</td><td class="w">20</td><td>빌드·테스트·배포 명령어가 적혀 있는가.</td></tr>
+        <tr><td>Architecture Clarity</td><td class="w">20</td><td>코드 구조를 이 파일만 보고 파악할 수 있는가.</td></tr>
+        <tr><td>Non-obvious Patterns</td><td class="w">15</td><td>관습·함정·예외가 기록됐는가.</td></tr>
+        <tr><td>Conciseness</td><td class="w">15</td><td>코드만 봐도 아는 내용을 늘어놓지 않는가.</td></tr>
+        <tr><td>Currency</td><td class="w">15</td><td>현재 코드베이스 상태를 반영하는가.</td></tr>
+        <tr><td>Actionability</td><td class="w">15</td><td>지시가 실행 가능한가, 모호하지 않은가.</td></tr>
+      </tbody>
+    </table>
+    <p class="note">등급은 <b>A 90–100, B 70–89, C 50–69, D 30–49, F 0–29</b>로 갈린다. 결과는 항상 보고서 형태로 먼저 보여 주고, 사용자 승인 후에야 파일을 고친다.</p>
+  </section>
+
+  <section>
+    <span class="num">05</span>
+    <h2>주로 잡아내는 이슈</h2>
+    <p class="sub">점검에서 자주 발견되는 부패 유형.</p>
+    <dl class="defs">
+      <div class="def">
+        <dt>Stale commands</dt><dd>예전엔 됐지만 지금은 작동하지 않는 빌드·테스트 명령어.</dd>
+      </div>
+      <div class="def">
+        <dt>Missing dependencies</dt><dd>실행에 필요한데 문서에 적히지 않은 도구·패키지.</dd>
+      </div>
+      <div class="def">
+        <dt>Outdated architecture</dt><dd>파일 구조가 바뀌었는데 옛 디렉터리 설명이 그대로 남은 경우.</dd>
+      </div>
+      <div class="def">
+        <dt>Missing env setup</dt><dd>필요한 환경 변수·초기 설정이 문서에 없는 경우.</dd>
+      </div>
+      <div class="def">
+        <dt>Undocumented gotchas</dt><dd>코드에 숨은 함정·관습이 어디에도 적혀 있지 않은 경우.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section>
+    <span class="num">06</span>
+    <h2>설치</h2>
+    <p class="sub">공식 마켓플레이스의 플러그인이다.</p>
+<pre><code>claude plugin install claude-md-management@claude-plugins-official</code></pre>
+    <p class="warn">제작자는 Anthropic의 Isabella He. 저장소는 <code>anthropics/claude-plugins-official</code>의 <code>plugins/claude-md-management</code>다.</p>
+  </section>
+
+  <div class="takeaway">
+    <p>CLAUDE.md를 코드처럼 관리한다 — <b>세션 끝엔 회의록, 주기적으론 건강검진</b>.</p>
+    <span class="after">기록 도구와 점검 도구를 분리한 것이 이 플러그인의 핵심이다. 둘 다 자동 적용 대신 후보·보고서를 먼저 보여 주고 승인받는다.</span>
+  </div>
+
+  <footer>이 노트는 짐코딩 유튜브 쇼츠 「CLAUDE.md 자동 관리하는 공식 플러그인」과 <code>anthropics/claude-plugins-official</code>의 <code>claude-md-management</code> 문서를 요약·재구성한 것입니다.</footer>
+
+</main>
+</body>
+</html>

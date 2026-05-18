@@ -10,6 +10,7 @@
 - `karpathy-claude-code/` — 카파시 CLAUDE.md 4원칙. `CLAUDE.md`는 실제 적용용 규칙 파일, `index.html`은 출처 영상 요약 노트다.
 - `project-doc-structure/` — 새 프로젝트 시작 시 잡을 문서 구조 기준. `index.html`에 CLAUDE.md와 스펙·컨벤션 분리 원칙을 정리했다.
 - `how-claude-code-works/` — Claude Code 작동 원리(에이전틱 루프·컨텍스트 윈도우·도구·권한 모드) 요약. `index.html`은 Anthropic 공식 영상 요약 노트다.
+- `claude-md-management/` — CLAUDE.md를 자동 관리하는 공식 플러그인 요약. `/revise-claude-md`와 `claude-md-improver` 두 도구, 6기준 평가표를 정리했다.
 
 ## 작성 규칙
 
